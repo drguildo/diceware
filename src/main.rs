@@ -1,6 +1,6 @@
 use clap::{crate_authors, crate_description, crate_name, crate_version};
 
-fn main() -> Result<(), std::io::Error> {
+fn main() {
     let matches = clap::App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
@@ -22,15 +22,19 @@ fn main() -> Result<(), std::io::Error> {
         .get_matches();
 
     let wordlist_path = matches.value_of("path").unwrap();
-    let wordlist = load_words(wordlist_path)?;
+    match load_words(wordlist_path) {
+        Ok(wordlist) => {
+            println!("wordlist length: {}", wordlist.len());
 
-    println!("wordlist length: {}", wordlist.len());
-
-    let numwords = matches.value_of("numwords").unwrap().parse::<u8>().unwrap();
-
-    println!("{}", generate_password(&wordlist, numwords));
-
-    Ok(())
+            let numwords = matches.value_of("numwords").unwrap().parse::<u8>().unwrap();
+        
+            println!("{}", generate_password(&wordlist, numwords));
+        }
+        Err(e) => {
+            eprintln!("Failed to load word list: {}", e.to_string());
+            std::process::exit(1);
+        }
+    }
 }
 
 fn load_words(wordlist_path: &str) -> std::io::Result<Vec<String>> {
