@@ -6,6 +6,12 @@ fn main() {
         .author(crate_authors!())
         .about(crate_description!())
         .arg(
+            clap::Arg::with_name("verbose")
+                .long("verbose")
+                .short("v")
+                .takes_value(false)
+        )
+        .arg(
             clap::Arg::with_name("numwords")
                 .long("number-of-words")
                 .short("n")
@@ -21,10 +27,13 @@ fn main() {
         )
         .get_matches();
 
+    let verbose = matches.is_present("verbose");
     let wordlist_path = matches.value_of("path").unwrap();
     match load_words(wordlist_path) {
         Ok(wordlist) => {
-            println!("wordlist length: {}", wordlist.len());
+            if verbose {
+                eprintln!("wordlist length: {}", wordlist.len());
+            }
 
             let numwords = matches.value_of("numwords").unwrap().parse::<u8>().unwrap();
 
