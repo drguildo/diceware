@@ -28,7 +28,7 @@ fn main() {
 
             let numwords = matches.value_of("numwords").unwrap().parse::<u8>().unwrap();
 
-            println!("{}", generate_password(&wordlist, numwords));
+            println!("{}", diceware::generate_password(&wordlist, numwords));
         }
         Err(e) => {
             eprintln!("Failed to load word list: {}", e.to_string());
@@ -42,18 +42,4 @@ fn load_words(wordlist_path: &str) -> std::io::Result<Vec<String>> {
 
     let file = std::fs::File::open(wordlist_path)?;
     std::io::BufReader::new(file).lines().collect()
-}
-
-fn generate_password(wordlist: &Vec<String>, num_words: u8) -> String {
-    use rand::Rng;
-
-    let mut rng = rand::thread_rng();
-    let mut password_words: Vec<String> = vec![];
-    for _ in 0..num_words {
-        let random_word_index = rng.gen_range(0..wordlist.len());
-        let random_word = wordlist.get(random_word_index).unwrap();
-        password_words.push(random_word.clone());
-    }
-
-    password_words.join(" ")
 }
