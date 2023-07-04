@@ -1,43 +1,42 @@
-use clap::{crate_authors, crate_description, crate_name, crate_version};
+use clap::{value_parser, Arg, Command};
 
 fn main() {
-    let matches = clap::App::new(crate_name!())
-        .version(crate_version!())
-        .author(crate_authors!())
-        .about(crate_description!())
+    let matches = Command::new(clap::crate_name!())
+        .version(clap::crate_version!())
+        .author(clap::crate_authors!())
+        .about(clap::crate_description!())
         .arg(
-            clap::Arg::with_name("verbose")
+            Arg::new("verbose")
                 .long("verbose")
-                .short("v")
-                .takes_value(false)
+                .short('v')
+                .action(clap::ArgAction::SetTrue),
         )
         .arg(
-            clap::Arg::with_name("numwords")
+            Arg::new("numwords")
                 .long("number-of-words")
-                .short("n")
-                .takes_value(true)
+                .short('n')
+                .value_parser(value_parser!(u8))
                 .default_value("6"),
         )
         .arg(
-            clap::Arg::with_name("path")
+            Arg::new("path")
                 .long("wordlist-path")
-                .short("p")
-                .takes_value(true)
+                .short('p')
                 .default_value("wordlist.txt"),
         )
         .get_matches();
 
-    let verbose = matches.is_present("verbose");
-    let wordlist_path = matches.value_of("path").unwrap();
+    let verbose = matches.get_flag("verbose");
+    let wordlist_path = matches.get_one::<String>("path").unwrap();
     match load_words(wordlist_path) {
         Ok(wordlist) => {
             if verbose {
                 eprintln!("wordlist length: {}", wordlist.len());
             }
 
-            let numwords = matches.value_of("numwords").unwrap().parse::<u8>().unwrap();
+            let numwords = matches.get_one::<u8>("numwords").unwrap();
 
-            println!("{}", diceware::generate_password(&wordlist, numwords));
+            println!("{}", diceware::generate_password(&wordlist, *numwords));
         }
         Err(e) => {
             eprintln!("Failed to load word list: {}", e.to_string());

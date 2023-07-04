@@ -5,5 +5,5 @@ authors = ["Simon Morgan <sjm@sjm.io>"]
 edition = "2018"
 
 [dependencies]
-clap = "2"
+clap = { version = "4", features = ["cargo"] }
 rand = "0.8"
